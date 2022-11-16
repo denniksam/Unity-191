@@ -23,38 +23,44 @@ public class Bird : MonoBehaviour
     }
 
     void Update()
-
     {
-        #region Непрерывное управление (постоянное нажатие)
-        // if (Input.GetKey(KeyCode.Space))  // только с клавиатуры
-        // {
-        //     // Rigidbody2D.AddForce(ForceDirection); - зависит от частоты Update
-        //     Rigidbody2D.AddForce(ForceDirection * Time.deltaTime * deltaTimeScaler);
-        // }
+        if (MenuCanvas.ControlTypeIndex == 0)
+        {
+            #region Непрерывное управление (постоянное нажатие)
+            if (Input.GetKey(KeyCode.Space))  // только с клавиатуры
+            {
+                // Rigidbody2D.AddForce(ForceDirection); - зависит от частоты Update
+                Rigidbody2D.AddForce(ForceDirection * Time.deltaTime * deltaTimeScaler);
+            }
 
-        // float force = Input.GetAxis("Jump");  // с клавиатуры и джойстика
-        // if(force != 0)
-        //     Rigidbody2D.AddForce(ForceDirection * Time.deltaTime * deltaTimeScaler * force);
-        #endregion
+            float force = Input.GetAxis("Jump");  // с клавиатуры и джойстика
+            if (force != 0)
+                Rigidbody2D.AddForce(ForceDirection * Time.deltaTime * deltaTimeScaler * force);
+            #endregion
+        }
+        else if (MenuCanvas.ControlTypeIndex == 1)
+        {
+            #region Импульсное управление (однократные нажатия)
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                Rigidbody2D.AddForce(ForceDirection * discrete2continualFactor);
+            }
+            #endregion
+        }
+        else
+        {
+            #region Гибридный режим
+            // Сила растет при удержании пробела, но не дольше 1 секунды,
+            //  дальнейшее удержание пробела игнорируется, требуется повторное нажатие
+            // Более короткие нажатия - прилагают меньшую силу
+            if (Input.GetKeyDown(KeyCode.Space)) holdTime = holdTimeLimit;
+            if (Input.GetKey(KeyCode.Space) && holdTime > 0) holdTime -= Time.deltaTime;
+            if (Input.GetKeyUp(KeyCode.Space)) holdTime = 0;
+            if (holdTime > 0)
+                Rigidbody2D.AddForce(ForceDirection * Time.deltaTime * deltaTimeScaler);
 
-        #region Импульсное управление (однократные нажатия)
-        // if (Input.GetKeyDown(KeyCode.Space))
-        // {
-        //     Rigidbody2D.AddForce(ForceDirection * discrete2continualFactor);
-        // }
-        #endregion
-
-        #region Гибридный режим
-        // Сила растет при удержании пробела, но не дольше 1 секунды,
-        //  дальнейшее удержание пробела игнорируется, требуется повторное нажатие
-        // Более короткие нажатия - прилагают меньшую силу
-        if (Input.GetKeyDown(KeyCode.Space)) holdTime = holdTimeLimit;
-        if (Input.GetKey(KeyCode.Space) && holdTime > 0) holdTime -= Time.deltaTime;         
-        if (Input.GetKeyUp(KeyCode.Space)) holdTime = 0;
-        if (holdTime > 0)
-            Rigidbody2D.AddForce(ForceDirection * Time.deltaTime * deltaTimeScaler);
-
-        #endregion
+            #endregion
+        }
     }
     // Задание: определить столкновение с трубой, вывести в консоль
     private void OnCollisionEnter2D(Collision2D other)
@@ -62,6 +68,9 @@ public class Bird : MonoBehaviour
        // if(other.gameObject.CompareTag("Pipe"))
        //     Debug.Log("Collision pipe: " + other.gameObject.name);
     }
-
+    /* Д.З. Расширить функциональность прошлого Д.З. (убрать трубы при столкновении)
+     * после столкновения:
+     *  Отобразить меню, установить надпись на кнопке "Again"
+     */
 
 }
