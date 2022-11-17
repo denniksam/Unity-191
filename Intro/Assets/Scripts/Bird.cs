@@ -13,6 +13,7 @@ public class Bird : MonoBehaviour
     private const float holdTimeLimit = 1;  // предельное время удержания
     private const float discrete2continualFactor = 30;  // разница в однократном и постоянном действии
     private const float deltaTimeScaler = 100;  // множитель при deltaTime для коррекции на быстродейстие
+    private GameStat gameStat;   // ссылка на объект класса GameStat, находящийся на холсте "GameStat"
 
     void Start()
     {
@@ -20,6 +21,9 @@ public class Bird : MonoBehaviour
         ForceDirection = Vector2.up * ForceFactor;
         holdTime = 0;
         // this.transform.localScale = new Vector3(2, 2, 2);
+        gameStat =                        // Объект класса GameStat - это компонент
+            GameObject.Find("GameStat")   // GameObject-а "GameStat" (холста)
+            .GetComponent<GameStat>();    // 
     }
 
     void Update()
@@ -61,6 +65,11 @@ public class Bird : MonoBehaviour
 
             #endregion
         }
+        // Ориентация птицы - поворот вверх/вниз в зависимости от скорости
+        // Rigidbody2D.velocity.y - вертикальная компонента скрости
+        // 2 *  -- коэф. чувствительности, чем он больше, тем больше угол наклона (повторота)
+        this.transform.rotation = Quaternion.Euler(0, 0, 2 * Rigidbody2D.velocity.y);
+        gameStat.GameEnergy -= 1e-4f;
     }
     // Задание: определить столкновение с трубой, вывести в консоль
     private void OnCollisionEnter2D(Collision2D other)
@@ -68,9 +77,9 @@ public class Bird : MonoBehaviour
        // if(other.gameObject.CompareTag("Pipe"))
        //     Debug.Log("Collision pipe: " + other.gameObject.name);
     }
-    /* Д.З. Расширить функциональность прошлого Д.З. (убрать трубы при столкновении)
-     * после столкновения:
-     *  Отобразить меню, установить надпись на кнопке "Again"
+    /* Д.З. Реализовать накопление очков (Score), обеспечить вывод их
+     * при изменении,
+     * В момент меню паузы добавить к сообщению сведения о энергии и очках
      */
 
 }

@@ -7,6 +7,8 @@ public class MenuCanvas : MonoBehaviour
 {
     public static int ControlTypeIndex;   // стат. поле позволят обращаться к классу 
                                           // (не искать объект из других скриптов)
+    public static float Difficulty;
+
     [SerializeField]
     private GameObject UserMenu;
 
@@ -16,9 +18,18 @@ public class MenuCanvas : MonoBehaviour
     [SerializeField]
     private TMPro.TMP_Dropdown ChangeTypeDropdown;
 
+    [SerializeField]
+    private TMPro.TextMeshProUGUI MessageUGUI;
+
+    private GameStat gameStat;   // ссылка на объект класса GameStat, находящийся на холсте "GameStat"
+
     void Start()
     {
         ControlTypeIndex = 0;
+
+        gameStat =                        // Объект класса GameStat - это компонент
+            GameObject.Find("GameStat")   // GameObject-а "GameStat" (холста)
+            .GetComponent<GameStat>();    // 
 
         if (UserMenu.activeInHierarchy)
         {
@@ -30,7 +41,13 @@ public class MenuCanvas : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            ShowMenu( ! UserMenu.activeInHierarchy);
+            if (UserMenu.activeInHierarchy) {
+                ShowMenu(false);
+            }
+            else
+            {
+                ShowMenu(true, message: "Game paused @ time " + gameStat.GameTime );
+            }
         }
     }
 
@@ -42,17 +59,23 @@ public class MenuCanvas : MonoBehaviour
 
     public void ControlTypeChanged(int value)
     {
-        Debug.Log(ChangeTypeDropdown.value);
-        ControlTypeIndex = ChangeTypeDropdown.value;   // сохраняем стат. поле
+        // Debug.Log(ChangeTypeDropdown.value);
+        MenuCanvas.ControlTypeIndex = ChangeTypeDropdown.value;   // сохраняем стат. поле
+    }
+    public void DifficultyChanged(float value)
+    {
+        // Debug.Log(value);
+        MenuCanvas.Difficulty = value;
     }
 
-    private void ShowMenu(bool mode, string buttonText = "Resume")
+    private void ShowMenu(bool mode, string buttonText = "Resume", string message = "")
     {
         if (mode)   // режим отображения меню
         {
             UserMenu.SetActive(true);            // Отображаем контейнер меню (все эл-ты)
             Time.timeScale = 0;                  // Останавливаем физическое время
             ResumeButtonText.text = buttonText;  // Устанавливаем надпись кнопке
+            MessageUGUI.text = message;          // текст главного сообщения
         }
         else
         {

@@ -10,6 +10,7 @@ public class SpawnPoint : MonoBehaviour
     private GameObject Pipe;
     private float PipeTime;
     private float PipeSpawnTime = 3;  // 3 секунды между трубами
+    private float TimeRange = 4;      // диапазон изменения в зав. от сложности игры
 
     void Start()
     {
@@ -21,7 +22,7 @@ public class SpawnPoint : MonoBehaviour
         PipeTime -= Time.deltaTime;
         if(PipeTime < 0)
         {
-            PipeTime = PipeSpawnTime;
+            PipeTime = PipeSpawnTime + TimeRange * (1 - MenuCanvas.Difficulty);
             SpawnPipe();
         }
     }
