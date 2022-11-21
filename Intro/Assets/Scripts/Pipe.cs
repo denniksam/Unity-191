@@ -17,6 +17,6 @@ public class Pipe : MonoBehaviour
     void Update()
     {
         // Обеспечить равномерное движение трубы влево
-        this.transform.Translate(moveDirection * Time.deltaTime);
+        this.transform.Translate(moveDirection * Time.deltaTime, Space.World);
     }
 }

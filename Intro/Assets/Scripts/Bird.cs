@@ -74,12 +74,30 @@ public class Bird : MonoBehaviour
     // Задание: определить столкновение с трубой, вывести в консоль
     private void OnCollisionEnter2D(Collision2D other)
     {
-       // if(other.gameObject.CompareTag("Pipe"))
-       //     Debug.Log("Collision pipe: " + other.gameObject.name);
+        Rigidbody2D.velocity = new Vector2(0, Rigidbody2D.velocity.y);
     }
-    /* Д.З. Реализовать накопление очков (Score), обеспечить вывод их
-     * при изменении,
-     * В момент меню паузы добавить к сообщению сведения о энергии и очках
-     */
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Energy"))
+        {
+            if (gameStat.GameEnergy <= 0.5f) gameStat.GameEnergy += 0.5f;
+            else gameStat.GameEnergy = 1f; 
+
+            GameObject.Destroy(other.gameObject);
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Tube"))
+        {
+            if(Time.timeScale > 0)  // игра активна
+            {
+                gameStat.GameScore += 1;
+            } // else - включено меню и выход коллайдера - из-за удаления трубы
+            
+        }
+    }
 
 }
