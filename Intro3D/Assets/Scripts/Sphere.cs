@@ -35,13 +35,7 @@ public class Sphere : MonoBehaviour
             * dx * FORCE_MAGNITUDE;                  // коррекции не нужны
         rb.AddForce(forceDirection);                 // 
     }
-
-
-    private void OnTriggerEnter(Collider other)
-    {
-        Debug.Log(other.name);
-        GameObject.Destroy(other.gameObject);
-    }
+    
 }
 /* Д.З. Реализовать отсчет позиции камеры не от центра шарика, а от его верхней
  * точки (чуть выше поверхности). 

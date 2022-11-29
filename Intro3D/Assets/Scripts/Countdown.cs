@@ -19,14 +19,30 @@ public class Countdown : MonoBehaviour
         if(timeleft < 0)
         {
             this.gameObject.SetActive(false);
+            GameStat.PassCheckpoint1(false);
         }
         else
         {
-            image.fillAmount = timeleft / timeout;
+            GameStat.Checkpoint1Fill = image.fillAmount = timeleft / timeout;
+            image.color = new Color(1 - image.fillAmount, image.fillAmount, 0.1f);
             timeleft -= Time.deltaTime;
         }
     }
+    private void OnTriggerEnter(Collider other)
+    {
+        GameObject.Destroy(this.gameObject);
+        GameStat.PassCheckpoint1(true);
+    }
 }
+/* Отображение информации (3D)
+ * реализовать действие (убрать преграду 2) при успешном прохождении
+ *   чекпоинта 2
+ * реализовать третий чекпоинт: его активацию, обратный отсчет, дублирование
+ *   на холсте.
+ * Добавить текстовое поле для отображения набранных очков
+ * ** Реализовать систему накопления очков в зависимости от пройденных
+ *    чекпоинтов и времени их прохождения (чем раньше, тем больше очков)
+ */
 /* Эффект обратного таймера:
  * - создаем спрайт с круглой формой (берем Circle из прошлого 2D проекта
  *      можно взять любой рисунок круга)
