@@ -30,6 +30,9 @@ public class GameStat : MonoBehaviour
             UpdateCheckpoint1Fill();
         }
     }
+    public static float CheckPoint1Time { get; set; } = 0;  // время прохождения CP1
+
+
     private static float _checkpoint2Fill;
     public static float Checkpoint2Fill
     {
@@ -86,6 +89,7 @@ public class GameStat : MonoBehaviour
     {
         Checkpoint1Fill = 1;
         GameStat.Checkpoint1Image.color = status ? Color.green : Color.red;
+        CheckPoint1Time = status ? GameTime : -1f;
     }
     public static void PassCheckpoint2(bool status)
     {

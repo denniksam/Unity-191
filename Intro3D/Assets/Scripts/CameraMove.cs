@@ -30,16 +30,16 @@ public class CameraMove : MonoBehaviour
     private void Update()
     {
         // накопление данных о движении мыши
-        mouseY -= SENSITIVITY_X * Input.GetAxis("Mouse Y");
+        mouseY -= SENSITIVITY_X * Input.GetAxis("Mouse Y") * Time.timeScale;
         if (mouseY < MIN_X_ANGLE) mouseY = MIN_X_ANGLE;
         if (mouseY > MAX_X_ANGLE) mouseY = MAX_X_ANGLE;
 
-        mouseX += SENSITIVITY_Y * Input.GetAxis("Mouse X");
+        mouseX += SENSITIVITY_Y * Input.GetAxis("Mouse X") * Time.timeScale;
 
         // поворот колеса мыши (scrolling)
         if (Input.mouseScrollDelta != Vector2.zero)
         {
-            zoom -= Input.mouseScrollDelta.y / SENSITIVITY_ZOOM;
+            zoom -= Input.mouseScrollDelta.y / SENSITIVITY_ZOOM * Time.timeScale;
             if (zoom < MIN_ZOOM) zoom = MIN_ZOOM;
             if (zoom > MAX_ZOOM) zoom = MAX_ZOOM;
         }
