@@ -1,21 +1,44 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameMenu : MonoBehaviour
 {
+    public static bool isSoundsEnabled { get; private set; }   // включение и громкость звуковых эффектов - 
+    public static float soundsVolume { get; private set; }     // должны быть доступны для др. скриптов
+
     private static GameObject MenuContent;
     private static TMPro.TextMeshProUGUI MenuMessage;
     private static TMPro.TextMeshProUGUI ButtonCaption;
     private static TMPro.TextMeshProUGUI StatMessage;
 
+    private AudioSource bgMusic;   // ссылка на AudioSource фоновой музыки
+    private bool bgMusicEnabled;   // теущее состояние (играет или нет)
+    private float bgMusicVolume;   // громкость фоновой музыки
+
+    private const string settingsFilename = "settings.txt";
+
+    #region lifecycle
     void Start()
     {
-        MenuContent = GameObject.Find(nameof(MenuContent));
-        MenuMessage = GameObject.Find(nameof(MenuMessage)).GetComponent<TMPro.TextMeshProUGUI>();
+        MenuContent   = GameObject.Find(nameof(MenuContent));
+        MenuMessage   = GameObject.Find(nameof(MenuMessage)).GetComponent<TMPro.TextMeshProUGUI>();
         ButtonCaption = GameObject.Find(nameof(ButtonCaption)).GetComponent<TMPro.TextMeshProUGUI>();
-        StatMessage = GameObject.Find(nameof(StatMessage)).GetComponent<TMPro.TextMeshProUGUI>();
+        StatMessage   = GameObject.Find(nameof(StatMessage)).GetComponent<TMPro.TextMeshProUGUI>();
+
+        bgMusic = this.GetComponent<AudioSource>();
+        bgMusicEnabled = GameObject.Find("MusicToggle")
+                            .GetComponent<UnityEngine.UI.Toggle>().isOn;
+        bgMusicVolume  = GameObject.Find("MusicSlider")
+                            .GetComponent<UnityEngine.UI.Slider>().value;
+        UpdateBgMusic();
+
+        GameMenu.isSoundsEnabled = GameObject.Find("SoundsToggle")
+                            .GetComponent<UnityEngine.UI.Toggle>().isOn;
+        GameMenu.soundsVolume = GameObject.Find("SoundsSlider")
+                            .GetComponent<UnityEngine.UI.Slider>().value;
 
         Time.timeScale = MenuContent.activeInHierarchy ? 0.0f : 1.0f;
     }
@@ -28,11 +51,65 @@ public class GameMenu : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        SaveSettings();
+    }
+    #endregion
+
+    #region event handlers
     public void MenuButtonClick()
     {
         GameMenu.Hide();
     }
+    public void MusicToggleChanged(bool isChecked)
+    {
+        bgMusicEnabled = isChecked;
+        UpdateBgMusic();
+    }
+    public void MusicVolumeChanged(float value)
+    {
+        bgMusicVolume = value;
+        UpdateBgMusic();
+    }
+    public void SoundsToggleChanged(bool isChecked)
+    {
+        GameMenu.isSoundsEnabled = isChecked;
+    }
+    public void SoundsVolumeChanged(float value)
+    {
+        GameMenu.soundsVolume = value;
+    }
+    #endregion
 
+    #region inner methods
+    private void SaveSettings()
+    {
+        System.IO.File.WriteAllText(settingsFilename,
+            $"{bgMusicEnabled};{bgMusicVolume};{isSoundsEnabled};{soundsVolume}"
+        );
+    }
+    private void LoadSettings()
+    {
+        if (System.IO.File.Exists(settingsFilename))
+        {
+            string[] data = System.IO.File.ReadAllText(settingsFilename).Split(";");
+            bgMusicEnabled = Convert.ToBoolean(data[0]);
+            /* Д.З. Реализовать считывание данных из файла сохраненных настроек,
+             * отобразить на меню - выставить значения на элементах интерфейса.
+             */
+        }
+    }
+
+    private void UpdateBgMusic()
+    {
+        bgMusic.volume = bgMusicVolume;
+        if (bgMusicEnabled) 
+        { 
+            if( ! bgMusic.isPlaying) bgMusic.Play(); 
+        }
+        else bgMusic.Stop();
+    }
     public static void Show(
         string menuMessage = "Game paused", 
         string buttonText = "Continue")       // GameMenu.Show()
@@ -54,12 +131,12 @@ public class GameMenu : MonoBehaviour
         MenuContent.SetActive(false);
         Time.timeScale = 1.0f;
     }
-    public static void Toggle()              // GameMenu.Toggle()
+    public static void Toggle()               // GameMenu.Toggle()
     {
         if (MenuContent.activeInHierarchy) GameMenu.Hide();
         else GameMenu.Show();
     }
-
+    #endregion
 }
 /* Обеспечить появление/исчезновение меню по ESC
  * Реализовать обработчик события кнопки
@@ -73,4 +150,8 @@ public class GameMenu : MonoBehaviour
  * 
  * Добавить регулировку скорости игры (слайдер),
  * технически меняющий timeScale
+ * 
+ * Settings: Настройки окружения
+ * Звуковое сопровождение:
+ * - фоновая музыка -- обеспечить вкл/выкл и регулировку громкости
  */

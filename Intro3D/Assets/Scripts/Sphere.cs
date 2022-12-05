@@ -4,9 +4,13 @@ using UnityEngine;
 
 public class Sphere : MonoBehaviour
 {
-    private Rigidbody rb;
     [SerializeField]
     private Camera cam;
+
+    private Rigidbody rb;
+    private AudioSource soundHitWall;
+    private AudioSource soundHitGate;
+
     private Vector3 forceDirection;
 
     private float FORCE_MAGNITUDE = 2;
@@ -14,6 +18,10 @@ public class Sphere : MonoBehaviour
     void Start()
     {
         rb = this.GetComponent<Rigidbody>();
+
+        AudioSource[] sounds = this.GetComponents<AudioSource>();  // GetComponents - массив компонент
+        soundHitWall = sounds[0];
+        soundHitGate = sounds[1];
     }
 
     void Update()
@@ -35,7 +43,24 @@ public class Sphere : MonoBehaviour
             * dx * FORCE_MAGNITUDE;                  // коррекции не нужны
         rb.AddForce(forceDirection);                 // 
     }
-    
+
+    private void OnCollisionEnter(Collision other)
+    {
+        // Установки (настройки) звука берем из меню
+        if (GameMenu.isSoundsEnabled)
+        {
+            AudioSource sound = other.gameObject.tag switch
+            {
+                "Wall" => soundHitWall,
+                "Gate" => soundHitGate,
+                _ => null
+            };
+            if (sound is null) return;
+
+            sound.volume = GameMenu.soundsVolume;
+            sound.Play();
+        }
+    }
 }
 /* Д.З. Реализовать отсчет позиции камеры не от центра шарика, а от его верхней
  * точки (чуть выше поверхности). 
